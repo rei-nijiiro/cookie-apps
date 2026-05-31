@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,26 +7,18 @@
 <title>色カードナラティブ</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f7f3ee;
-    --bg2: #ede8e0;
-    --text: #2a2018;
-    --muted: #9a8e80;
-    --border: rgba(42,32,24,0.1);
-    --card-shadow: 0 8px 32px rgba(42,32,24,0.12);
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     background: #f5f0e8;
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+    color: #2a2018;
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
     min-height: 100vh;
-    padding: 24px 16px 48px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 40px 20px 60px;
+    position: relative;
   }
 
   body::before {
@@ -33,91 +26,85 @@
     position: fixed;
     inset: 0;
     background: 
-      radial-gradient(ellipse 80% 40% at 10% 0%, rgba(200,170,120,0.28) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(150,180,200,0.18) 0%, transparent 50%);
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba(200,160,100,0.2) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 90%, rgba(150,180,200,0.15) 0%, transparent 55%);
     pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   header {
     text-align: center;
-    margin-bottom: 40px;
-    animation: fadeUp 0.8s ease;
+    margin-bottom: 32px;
   }
 
   h1 {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 20px;
+    font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
+    font-size: clamp(22px, 4vw, 36px);
     font-weight: 600;
-    letter-spacing: 5px;
-    color: var(--text);
-    margin-bottom: 6px;
+    letter-spacing: 6px;
+    color: #2a2018;
+    margin-bottom: 8px;
   }
 
   .subtitle {
-    font-size: 11px;
+    font-size: clamp(14px, 2vw, 18px);
     letter-spacing: 2px;
-    color: var(--muted);
+    color: #9a8e80;
   }
 
-  /* プログレス */
   .progress {
     display: flex;
-    gap: 8px;
-    margin-bottom: 32px;
+    gap: 10px;
+    margin-bottom: 28px;
     justify-content: center;
   }
 
   .progress-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: var(--border);
-    border: 1px solid rgba(42,32,24,0.15);
+    background: rgba(42,32,24,0.12);
+    border: 1px solid rgba(42,32,24,0.2);
     transition: all 0.4s ease;
   }
 
-  .progress-dot.done {
-    border-color: transparent;
-  }
-
-  /* カードグリッド */
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 360px;
+    gap: clamp(10px, 2vw, 20px);
     width: 100%;
     margin-bottom: 24px;
   }
 
   .q-card {
-    height: 88px;
-    border-radius: 14px;
+    aspect-ratio: 2/3;
+    border-radius: 16px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 1.5px dashed rgba(42,32,24,0.18);
-    background: white;
-    box-shadow: var(--card-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .q-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    border: 1.5px dashed rgba(42,32,24,0.2);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 4px 20px rgba(42,32,24,0.08);
+    padding: 12px;
   }
 
   .q-card:hover:not(.drawn) {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 40px rgba(42,32,24,0.16);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(42,32,24,0.14);
   }
 
   .q-card.drawn {
@@ -127,50 +114,25 @@
   }
 
   .q-label {
-    font-size: 10px;
+    font-size: clamp(13px, 1.8vw, 16px);
     letter-spacing: 2px;
-    transition: color 0.3s;
-    position: relative;
-    z-index: 1;
+    color: #9a8e80;
   }
 
-  .q-question {
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    position: relative;
-    z-index: 1;
+  .q-card.drawn .q-label {
+    color: rgba(255,255,255,0.7);
   }
 
   .q-mark {
-    font-size: 22px;
-    color: rgba(42,32,24,0.2);
-    position: relative;
-    z-index: 1;
+    font-size: clamp(26px, 4vw, 36px);
+    color: rgba(42,32,24,0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
 
-  .q-orb {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    position: relative;
-    z-index: 1;
-  }
-
-  .q-color-name {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: white;
-    letter-spacing: 2px;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    position: relative;
-    z-index: 1;
-  }
-
-  /* 選ばれた言葉リスト */
   .words-list {
-    max-width: 360px;
     width: 100%;
     margin-bottom: 20px;
   }
@@ -178,124 +140,102 @@
   .word-row {
     display: flex;
     align-items: baseline;
-    gap: 10px;
-    padding: 9px 14px;
+    gap: 12px;
+    padding: 10px 16px;
     margin-bottom: 6px;
-    background: white;
+    background: rgba(255,255,255,0.8);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(42,32,24,0.07);
-    animation: slideIn 0.3s ease;
     border-left: 3px solid transparent;
+    animation: slideIn 0.3s ease;
   }
 
   .word-q {
-    font-size: 10px;
+    font-size: clamp(10px, 1.5vw, 12px);
     letter-spacing: 1px;
-    color: var(--muted);
-    min-width: 30px;
+    color: #9a8e80;
+    min-width: 36px;
     flex-shrink: 0;
   }
 
   .word-text {
-    font-size: 12px;
+    font-size: clamp(12px, 1.8vw, 15px);
     letter-spacing: 0.5px;
-    color: var(--text);
-    line-height: 1.5;
+    color: #2a2018;
+    line-height: 1.6;
   }
 
-  /* 生成ボタン */
   .btn-generate {
     background: linear-gradient(135deg, #2a2018, #4a3828);
     border: none;
     border-radius: 40px;
     color: #f0ece4;
-    padding: 15px 48px;
-    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
-    font-size: 13px;
+    padding: 16px 56px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(13px, 1.8vw, 16px);
     letter-spacing: 3px;
     cursor: pointer;
     box-shadow: 0 8px 28px rgba(42,32,24,0.25);
     transition: all 0.3s ease;
-    animation: pulse 2s infinite;
     margin-bottom: 32px;
+    animation: pulse 2s infinite;
   }
 
   .btn-generate:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 36px rgba(42,32,24,0.3);
+    box-shadow: 0 14px 36px rgba(42,32,24,0.32);
   }
 
-  /* ナラティブ結果 */
-  .result {
-    max-width: 360px;
-    width: 100%;
-    animation: fadeUp 0.6s ease;
-  }
+  .hidden { display: none; }
+
+  /* 結果画面 */
+  .result { width: 100%; }
 
   .palette {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 28px;
   }
 
   .palette-dot {
-    width: 36px;
-    height: 36px;
+    width: clamp(32px, 5vw, 48px);
+    height: clamp(32px, 5vw, 48px);
     border-radius: 50%;
     box-shadow: 0 4px 14px rgba(0,0,0,0.15);
   }
 
   .story-box {
-    background: white;
-    border-radius: 20px;
-    padding: 32px 24px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 24px;
+    padding: clamp(24px, 4vw, 48px);
     text-align: center;
     box-shadow: 0 12px 40px rgba(42,32,24,0.1);
     margin-bottom: 16px;
   }
 
   .story-label {
-    font-size: 10px;
+    font-size: clamp(10px, 1.5vw, 12px);
     letter-spacing: 3px;
-    color: var(--muted);
-    margin-bottom: 16px;
+    color: #9a8e80;
+    margin-bottom: 20px;
   }
 
   .story-text {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 15px;
-    line-height: 2.4;
-    letter-spacing: 1px;
-    color: var(--text);
+    font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
+    font-size: clamp(15px, 2.2vw, 22px);
+    line-height: 2.6;
+    letter-spacing: 1.5px;
+    color: #2a2018;
     white-space: pre-line;
   }
 
   .copy-hint {
-    font-size: 11px;
+    font-size: clamp(10px, 1.5vw, 12px);
     letter-spacing: 1px;
-    color: var(--muted);
+    color: #9a8e80;
     text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .btn-reset {
-    width: 100%;
-    background: transparent;
-    border: 1.5px solid rgba(42,32,24,0.2);
-    border-radius: 40px;
-    color: var(--muted);
-    padding: 13px;
-    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
-    font-size: 12px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-reset:hover {
-    border-color: var(--text);
-    color: var(--text);
+    margin-bottom: 16px;
   }
 
   .btn-copy {
@@ -303,26 +243,33 @@
     background: #f0ece4;
     border: 1px solid rgba(42,32,24,0.15);
     border-radius: 40px;
-    color: var(--text);
-    padding: 13px;
-    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
-    font-size: 12px;
+    color: #2a2018;
+    padding: 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(12px, 1.5vw, 14px);
     letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 10px;
   }
 
-  .btn-copy:hover {
-    background: var(--bg2);
+  .btn-copy:hover { background: #e8e0d4; }
+
+  .btn-reset {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid rgba(42,32,24,0.2);
+    border-radius: 40px;
+    color: #9a8e80;
+    padding: 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: clamp(12px, 1.5vw, 14px);
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
   }
 
-  .hidden { display: none; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .btn-reset:hover { border-color: #2a2018; color: #2a2018; }
 
   @keyframes popIn {
     0% { transform: scale(0.85); opacity: 0.5; }
@@ -336,41 +283,49 @@
 
   @keyframes pulse {
     0%, 100% { box-shadow: 0 8px 28px rgba(42,32,24,0.25); }
-    50% { box-shadow: 0 8px 36px rgba(42,32,24,0.38); }
+    50% { box-shadow: 0 8px 36px rgba(42,32,24,0.4); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
 <body>
+<div class="container">
 
-<header>
-  <h1>色カードナラティブ</h1>
-  <p class="subtitle">カードをめくって、あなたの物語を紡ぐ</p>
-</header>
+  <header>
+    <h1>色カードナラティブ</h1>
+    <p class="subtitle">カードをめくって、あなたの物語を紡ぐ</p>
+  </header>
 
-<div class="progress" id="progress"></div>
+  <div class="progress" id="progress"></div>
 
-<div id="drawingSection">
-  <div class="cards-grid" id="cardsGrid"></div>
-  <div class="words-list" id="wordsList"></div>
-  <button class="btn-generate hidden" id="generateBtn" onclick="generateNarrative()">
-    ✦ ナラティブを紡ぐ
-  </button>
-</div>
-
-<div class="result hidden" id="resultSection">
-  <div class="palette" id="palette"></div>
-  <div class="story-box">
-    <div class="story-label">あなたの今日の物語</div>
-    <div class="story-text" id="storyText"></div>
+  <div id="drawingSection" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+    <div class="cards-grid" id="cardsGrid"></div>
+    <div class="words-list" id="wordsList"></div>
+    <button class="btn-generate hidden" id="generateBtn" onclick="generateNarrative()">
+      ✦ ナラティブを紡ぐ
+    </button>
   </div>
-  <p class="copy-hint">↓ Veo3 / Flova へのプロンプトとしてもお使いいただけます</p>
-  <button class="btn-copy" onclick="copyStory()">物語をコピーする</button>
-  <button class="btn-reset" onclick="resetApp()">もう一度引く</button>
+
+  <div class="result hidden" id="resultSection">
+    <div class="palette" id="palette"></div>
+    <div class="story-box">
+      <div class="story-label">あなたの今日の物語</div>
+      <div class="story-text" id="storyText"></div>
+    </div>
+    <p class="copy-hint">↓ Veo3 / Flova へのプロンプトとしてもお使いいただけます</p>
+    <button class="btn-copy" onclick="copyStory()">物語をコピーする</button>
+    <button class="btn-reset" onclick="resetApp()">もう一度引く</button>
+  </div>
+
 </div>
 
 <script>
 const colors = [
-  { name: "赤", hex: "#E03030", textColor: "white",
+  { name: "赤", hex: "#E03030",
     keywords: {
       いつ: ["情熱が燃えた夜に", "決意の夜明けに", "はじまりの朝に", "炎のような午後に", "覚醒の瞬間に"],
       どこで: ["赤く染まる夕焼けの丘で", "燃える暖炉の前で", "情熱の渦巻く場所で", "力強い大地の上で", "扉の前で"],
@@ -380,7 +335,7 @@ const colors = [
       どうした: ["静かに、しかし力強く踏み出した", "炎のように前へ進んだ", "迷わず決断した", "その熱を言葉にした", "ありのままに、ぶつかった"]
     }
   },
-  { name: "橙", hex: "#E8721A", textColor: "white",
+  { name: "橙", hex: "#E8721A",
     keywords: {
       いつ: ["新しい季節のはじまりに", "賑やかな午後に", "出会いが重なる日に", "つながりが生まれた朝に", "温もりを感じた夕暮れに"],
       どこで: ["賑やかな市場の片隅で", "人が集まる広場で", "温かな食卓の前で", "交差点の真ん中で", "笑い声が溢れる場所で"],
@@ -390,7 +345,7 @@ const colors = [
       どうした: ["思い切って声をかけた", "手を差し伸べた", "笑いかけた", "橋を架けた", "共に歩きはじめた"]
     }
   },
-  { name: "黄", hex: "#C8A800", textColor: "white",
+  { name: "黄", hex: "#C8A800",
     keywords: {
       いつ: ["光が満ちた昼下がりに", "好奇心が溢れた朝に", "閃きが訪れた瞬間に", "学びが深まった日に", "発見の午前中に"],
       どこで: ["古い図書館の窓辺で", "光差し込む部屋の中で", "広い空の下で", "知恵が集まる場所で", "自由な空間の中で"],
@@ -400,7 +355,7 @@ const colors = [
       どうした: ["ゆっくりと世界に見せ始めた", "思い切って試してみた", "知識を分かち合った", "素直に喜んだ", "一歩踏み出した"]
     }
   },
-  { name: "緑", hex: "#3A9E50", textColor: "white",
+  { name: "緑", hex: "#3A9E50",
     keywords: {
       いつ: ["雨上がりの静かな朝に", "根を張る季節に", "穏やかな時間が流れる中で", "呼吸が深まった夕方に", "自然が語りかける日に"],
       どこで: ["深い森の木陰で", "静かな庭の片隅で", "緑が溢れる野原で", "土の匂いがする場所で", "時間がゆっくり流れる場所で"],
@@ -410,7 +365,7 @@ const colors = [
       どうした: ["ただ、待ち続けた", "深く根を張った", "静かに育み続けた", "呼吸を整えた", "土に還るように、受け入れた"]
     }
   },
-  { name: "青", hex: "#2060C8", textColor: "white",
+  { name: "青", hex: "#2060C8",
     keywords: {
       いつ: ["星が流れる夜明け前に", "静寂が訪れた深夜に", "使命を感じた朝に", "言葉が降りてきた瞬間に", "深く考えた長い午後に"],
       どこで: ["海と空が溶け合う場所で", "静かな書斎の中で", "言葉が生まれる場所で", "誠実さが宿る空間で", "深い水の底のような場所で"],
@@ -420,7 +375,7 @@ const colors = [
       どうした: ["川のように進み続けた", "言葉を丁寧に選んだ", "静かに、しかし確実に歩んだ", "誠実に向き合い続けた", "深く、本質を問い続けた"]
     }
   },
-  { name: "紫", hex: "#7A40B0", textColor: "white",
+  { name: "紫", hex: "#7A40B0",
     keywords: {
       いつ: ["夢と現実の境で", "直感が囁いた夜に", "神秘が訪れた瞬間に", "魂が揺れた夜明けに", "言葉にならない何かを感じた時に"],
       どこで: ["霧に包まれた庭園で", "夢の中のような場所で", "見えない境界線の上で", "神秘が宿る空間で", "静寂と音楽が交わる場所で"],
@@ -430,7 +385,7 @@ const colors = [
       どうした: ["その声に従って歩いた", "論理より先に、感じた", "神秘の中に身を委ねた", "夢と現実を行き来した", "美しさを信じて進んだ"]
     }
   },
-  { name: "ピンク", hex: "#D04888", textColor: "white",
+  { name: "ピンク", hex: "#D04888",
     keywords: {
       いつ: ["やわらかな春の午後に", "愛が満ちた瞬間に", "赦しが訪れた朝に", "自分を好きになれた日に", "優しさが溢れた夕暮れに"],
       どこで: ["花びらが舞う道の途中で", "温かな光の中で", "愛が宿る場所で", "自分だけの安心な空間で", "やさしさが満ちる場所で"],
@@ -450,22 +405,20 @@ function init() {
   selections = {};
   drawnCount = 0;
 
-  // プログレス
   const prog = document.getElementById('progress');
   prog.innerHTML = questions.map(() => '<div class="progress-dot"></div>').join('');
 
-  // カードグリッド
   const grid = document.getElementById('cardsGrid');
   grid.innerHTML = questions.map((q, i) => `
     <div class="q-card" id="card-${i}" onclick="drawCard(${i}, '${q}')">
-      <div class="q-label" id="label-${i}" style="color:var(--muted)">${q}</div>
+      <div class="q-label" id="label-${i}">${q}</div>
       <div class="q-mark" id="mark-${i}">？</div>
     </div>
   `).join('');
 
   document.getElementById('wordsList').innerHTML = '';
   document.getElementById('generateBtn').classList.add('hidden');
-  document.getElementById('drawingSection').classList.remove('hidden');
+  document.getElementById('drawingSection').style.display = 'flex';
   document.getElementById('resultSection').classList.add('hidden');
 }
 
@@ -474,40 +427,35 @@ function drawCard(index, question) {
   if (card.classList.contains('drawn')) return;
 
   const color = colors[Math.floor(Math.random() * colors.length)];
-  const keyword = color.keywords[question][Math.floor(Math.random() * color.keywords[question].length)];
+  const kws = color.keywords[question];
+  const keyword = kws[Math.floor(Math.random() * kws.length)];
 
   selections[question] = { color, keyword };
   drawnCount++;
 
-  // カードを更新
   card.classList.add('drawn');
-  card.style.background = `linear-gradient(145deg, ${color.hex}dd, ${color.hex}99)`;
+  card.style.background = `linear-gradient(145deg, ${color.hex}ee, ${color.hex}99)`;
   card.style.borderColor = color.hex;
   card.style.boxShadow = `0 8px 24px ${color.hex}44`;
 
   document.getElementById(`label-${index}`).style.color = 'rgba(255,255,255,0.7)';
   document.getElementById(`mark-${index}`).innerHTML = `
-    <div style="width:22px;height:22px;border-radius:50%;background:${color.hex};box-shadow:0 0 10px ${color.hex};margin-bottom:4px;"></div>
-    <div style="font-family:'Shippori Mincho',serif;font-size:12px;font-weight:600;color:white;letter-spacing:1px;">${color.name}</div>
+    <div style="width:clamp(20px,3vw,30px);height:clamp(20px,3vw,30px);border-radius:50%;background:${color.hex};box-shadow:0 0 12px ${color.hex};"></div>
+    <div style="font-size:clamp(11px,1.6vw,14px);font-weight:600;color:white;letter-spacing:1px;margin-top:4px;">${color.name}</div>
   `;
 
-  // プログレス更新
   const dots = document.querySelectorAll('.progress-dot');
   dots[drawnCount - 1].classList.add('done');
   dots[drawnCount - 1].style.background = color.hex;
+  dots[drawnCount - 1].style.borderColor = 'transparent';
 
-  // 言葉リスト追加
   const list = document.getElementById('wordsList');
   const row = document.createElement('div');
   row.className = 'word-row';
   row.style.borderLeftColor = color.hex;
-  row.innerHTML = `
-    <span class="word-q">${question}</span>
-    <span class="word-text">${keyword}</span>
-  `;
+  row.innerHTML = `<span class="word-q">${question}</span><span class="word-text">${keyword}</span>`;
   list.appendChild(row);
 
-  // 全部引いたら生成ボタン表示
   if (drawnCount === questions.length) {
     document.getElementById('generateBtn').classList.remove('hidden');
   }
@@ -515,17 +463,16 @@ function drawCard(index, question) {
 
 function generateNarrative() {
   const parts = questions.map(q => selections[q]?.keyword || '');
-  const story = `${parts[0]}、\n${parts[1]}、\n${parts[2]}は\n${parts[3]}手にした。\n\n${parts[4]}——\n${parts[5]}。`;
+  const story = `${parts[0]}、\n${parts[1]}、\n${parts[2]}\n${parts[3]}手にした。\n\n${parts[4]}——\n${parts[5]}。`;
 
   document.getElementById('storyText').textContent = story;
 
-  // パレット
   const palette = document.getElementById('palette');
   palette.innerHTML = questions.map(q =>
     `<div class="palette-dot" style="background:${selections[q].color.hex};box-shadow:0 4px 14px ${selections[q].color.hex}55;"></div>`
   ).join('');
 
-  document.getElementById('drawingSection').classList.add('hidden');
+  document.getElementById('drawingSection').style.display = 'none';
   document.getElementById('resultSection').classList.remove('hidden');
 }
 
@@ -538,11 +485,8 @@ function copyStory() {
   });
 }
 
-function resetApp() {
-  init();
-}
+function resetApp() { init(); }
 
-// 初期化
 init();
 </script>
 </body>
