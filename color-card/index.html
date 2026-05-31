@@ -347,7 +347,7 @@ const colors = [
   },
   { name: "黄", hex: "#C8A800",
     keywords: {
-      いつ: ["光が満ちた昼下がりに", "好奇心が溢れた朝に", "閃きが訪れた瞬間に", "学びが深まった日に", "発見の午前中に"],
+      いつ: ["光が満ちた昼下がりに", "好奇心が溢れた朝に", "閃きが訪れた瞬間に", "学びが深まった静かな日に", "何かが動き出した朝に"],
       どこで: ["古い図書館の窓辺で", "光差し込む部屋の中で", "広い空の下で", "知恵が集まる場所で", "自由な空間の中で"],
       誰が: ["才能を隠していた人が", "ひたむきに学ぶ者が", "好奇心を持ち続ける人が", "小さな発見を喜ぶ人が", "輝くことを恐れていた人が"],
       何を: ["隠していた才能を", "長年の疑問を", "新しいアイデアを", "輝く可能性を", "忘れていた夢を"],
@@ -400,10 +400,19 @@ const colors = [
 const questions = ["いつ", "どこで", "誰が", "何を", "なぜ", "どうした"];
 let selections = {};
 let drawnCount = 0;
+let sessionDeck = []; // セッション内の色デッキ（重複なし）
+
+function shuffleDeck() {
+  // 7色をシャッフルして先頭6枚を使う → 1セッション内は全部違う色
+  sessionDeck = [...colors]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 6);
+}
 
 function init() {
   selections = {};
   drawnCount = 0;
+  shuffleDeck(); // 新しいセッションのたびにシャッフル
 
   const prog = document.getElementById('progress');
   prog.innerHTML = questions.map(() => '<div class="progress-dot"></div>').join('');
@@ -426,7 +435,7 @@ function drawCard(index, question) {
   const card = document.getElementById(`card-${index}`);
   if (card.classList.contains('drawn')) return;
 
-  const color = colors[Math.floor(Math.random() * colors.length)];
+  const color = sessionDeck[index]; // デッキから順番に取得（重複なし）
   const kws = color.keywords[question];
   const keyword = kws[Math.floor(Math.random() * kws.length)];
 
