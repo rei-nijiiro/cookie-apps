@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>色カードナラティブ</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f3ee;
+    --bg2: #ede8e0;
+    --text: #2a2018;
+    --muted: #9a8e80;
+    --border: rgba(42,32,24,0.1);
+    --card-shadow: 0 8px 32px rgba(42,32,24,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f0e8;
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 40% at 10% 0%, rgba(200,170,120,0.28) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(150,180,200,0.18) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeUp 0.8s ease;
+  }
+
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 5px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  /* プログレス */
+  .progress {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    justify-content: center;
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 1px solid rgba(42,32,24,0.15);
+    transition: all 0.4s ease;
+  }
+
+  .progress-dot.done {
+    border-color: transparent;
+  }
+
+  /* カードグリッド */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 360px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .q-card {
+    height: 88px;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1.5px dashed rgba(42,32,24,0.18);
+    background: white;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .q-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .q-card:hover:not(.drawn) {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(42,32,24,0.16);
+  }
+
+  .q-card.drawn {
+    border-style: solid;
+    cursor: default;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .q-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    transition: color 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .q-question {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+  }
+
+  .q-mark {
+    font-size: 22px;
+    color: rgba(42,32,24,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  .q-orb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .q-color-name {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 選ばれた言葉リスト */
+  .words-list {
+    max-width: 360px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .word-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 9px 14px;
+    margin-bottom: 6px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(42,32,24,0.07);
+    animation: slideIn 0.3s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .word-q {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    min-width: 30px;
+    flex-shrink: 0;
+  }
+
+  .word-text {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* 生成ボタン */
+  .btn-generate {
+    background: linear-gradient(135deg, #2a2018, #4a3828);
+    border: none;
+    border-radius: 40px;
+    color: #f0ece4;
+    padding: 15px 48px;
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(42,32,24,0.25);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+    margin-bottom: 32px;
+  }
+
+  .btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(42,32,24,0.3);
+  }
+
+  /* ナラティブ結果 */
+  .result {
+    max-width: 360px;
+    width: 100%;
+    animation: fadeUp 0.6s ease;
+  }
+
+  .palette {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .palette-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+
+  .story-box {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(42,32,24,0.1);
+    margin-bottom: 16px;
+  }
+
+  .story-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .story-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    line-height: 2.4;
+    letter-spacing: 1px;
+    color: var(--text);
+    white-space: pre-line;
+  }
+
+  .copy-hint {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .btn-reset {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid rgba(42,32,24,0.2);
+    border-radius: 40px;
+    color: var(--muted);
+    padding: 13px;
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  .btn-copy {
+    width: 100%;
+    background: #f0ece4;
+    border: 1px solid rgba(42,32,24,0.15);
+    border-radius: 40px;
+    color: var(--text);
+    padding: 13px;
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+  }
+
+  .btn-copy:hover {
+    background: var(--bg2);
+  }
+
+  .hidden { display: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 28px rgba(42,32,24,0.25); }
+    50% { box-shadow: 0 8px 36px rgba(42,32,24,0.38); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>色カードナラティブ</h1>
+  <p class="subtitle">カードをめくって、あなたの物語を紡ぐ</p>
+</header>
+
+<div class="progress" id="progress"></div>
+
+<div id="drawingSection">
+  <div class="cards-grid" id="cardsGrid"></div>
+  <div class="words-list" id="wordsList"></div>
+  <button class="btn-generate hidden" id="generateBtn" onclick="generateNarrative()">
+    ✦ ナラティブを紡ぐ
+  </button>
+</div>
+
+<div class="result hidden" id="resultSection">
+  <div class="palette" id="palette"></div>
+  <div class="story-box">
+    <div class="story-label">あなたの今日の物語</div>
+    <div class="story-text" id="storyText"></div>
+  </div>
+  <p class="copy-hint">↓ Veo3 / Flova へのプロンプトとしてもお使いいただけます</p>
+  <button class="btn-copy" onclick="copyStory()">物語をコピーする</button>
+  <button class="btn-reset" onclick="resetApp()">もう一度引く</button>
+</div>
+
+<script>
+const colors = [
+  { name: "赤", hex: "#E03030", textColor: "white",
+    keywords: {
+      いつ: ["情熱が燃えた夜に", "決意の夜明けに", "はじまりの朝に", "炎のような午後に", "覚醒の瞬間に"],
+      どこで: ["赤く染まる夕焼けの丘で", "燃える暖炉の前で", "情熱の渦巻く場所で", "力強い大地の上で", "扉の前で"],
+      誰が: ["炎のような意志を持つ人が", "誓いを立てた旅人が", "本気の瞳を持つ者が", "情熱を隠せない人が", "はじまりを恐れない人が"],
+      何を: ["大切な誓いを", "隠していた本音を", "燃えるような希望を", "最初の一歩を", "心の扉を"],
+      なぜ: ["もう迷わないと決めたから", "その炎を絶やしたくなかったから", "本気を見せる時だと知ったから", "それが自分らしさだから", "情熱が溢れて止まらなかったから"],
+      どうした: ["静かに、しかし力強く踏み出した", "炎のように前へ進んだ", "迷わず決断した", "その熱を言葉にした", "ありのままに、ぶつかった"]
+    }
+  },
+  { name: "橙", hex: "#E8721A", textColor: "white",
+    keywords: {
+      いつ: ["新しい季節のはじまりに", "賑やかな午後に", "出会いが重なる日に", "つながりが生まれた朝に", "温もりを感じた夕暮れに"],
+      どこで: ["賑やかな市場の片隅で", "人が集まる広場で", "温かな食卓の前で", "交差点の真ん中で", "笑い声が溢れる場所で"],
+      誰が: ["笑顔を武器にする旅人が", "誰とでも打ち解ける人が", "橋を渡し続ける者が", "つながりを大切にする人が", "温もりを運ぶ人が"],
+      何を: ["小さな勇気を", "あたたかい言葉を", "共に過ごす時間を", "笑顔という贈り物を", "絆の糸を"],
+      なぜ: ["変わりたいと願っていたから", "誰かを笑顔にしたかったから", "つながりの大切さを知っていたから", "温かさを伝えたかったから", "一人じゃないと気づいたから"],
+      どうした: ["思い切って声をかけた", "手を差し伸べた", "笑いかけた", "橋を架けた", "共に歩きはじめた"]
+    }
+  },
+  { name: "黄", hex: "#C8A800", textColor: "white",
+    keywords: {
+      いつ: ["光が満ちた昼下がりに", "好奇心が溢れた朝に", "閃きが訪れた瞬間に", "学びが深まった日に", "発見の午前中に"],
+      どこで: ["古い図書館の窓辺で", "光差し込む部屋の中で", "広い空の下で", "知恵が集まる場所で", "自由な空間の中で"],
+      誰が: ["才能を隠していた人が", "ひたむきに学ぶ者が", "好奇心を持ち続ける人が", "小さな発見を喜ぶ人が", "輝くことを恐れていた人が"],
+      何を: ["隠していた才能を", "長年の疑問を", "新しいアイデアを", "輝く可能性を", "忘れていた夢を"],
+      なぜ: ["輝くべき時だと気づいたから", "もう隠さなくていいと知ったから", "好奇心が抑えられなかったから", "学ぶことが喜びだと気づいたから", "自分を信じてみたかったから"],
+      どうした: ["ゆっくりと世界に見せ始めた", "思い切って試してみた", "知識を分かち合った", "素直に喜んだ", "一歩踏み出した"]
+    }
+  },
+  { name: "緑", hex: "#3A9E50", textColor: "white",
+    keywords: {
+      いつ: ["雨上がりの静かな朝に", "根を張る季節に", "穏やかな時間が流れる中で", "呼吸が深まった夕方に", "自然が語りかける日に"],
+      どこで: ["深い森の木陰で", "静かな庭の片隅で", "緑が溢れる野原で", "土の匂いがする場所で", "時間がゆっくり流れる場所で"],
+      誰が: ["根を張ることを知る者が", "静けさの中に力を持つ人が", "自然と話せる者が", "癒しを運ぶ人が", "待つことを知っている人が"],
+      何を: ["長い沈黙を", "大切な種を", "癒しの言葉を", "静かな力を", "土台という名の信念を"],
+      なぜ: ["土台を作ることが先だと知っていたから", "焦ることの無意味さを知っていたから", "自然のリズムを信じていたから", "根を張らずに咲けないと知っていたから", "静けさの中に答えがあると知っていたから"],
+      どうした: ["ただ、待ち続けた", "深く根を張った", "静かに育み続けた", "呼吸を整えた", "土に還るように、受け入れた"]
+    }
+  },
+  { name: "青", hex: "#2060C8", textColor: "white",
+    keywords: {
+      いつ: ["星が流れる夜明け前に", "静寂が訪れた深夜に", "使命を感じた朝に", "言葉が降りてきた瞬間に", "深く考えた長い午後に"],
+      どこで: ["海と空が溶け合う場所で", "静かな書斎の中で", "言葉が生まれる場所で", "誠実さが宿る空間で", "深い水の底のような場所で"],
+      誰が: ["流れを読む者が", "言葉を大切にする人が", "静かな信頼を持つ者が", "誠実さを貫く人が", "本質を見抜く者が"],
+      何を: ["古い地図を", "大切な言葉を", "静かな信頼を", "内なる使命を", "誠実さという鎧を"],
+      なぜ: ["新しい道を見つけたかったから", "誠実さだけが残ると知っていたから", "言葉が人を救うと信じていたから", "本質を見失いたくなかったから", "静かな力が一番強いと知っていたから"],
+      どうした: ["川のように進み続けた", "言葉を丁寧に選んだ", "静かに、しかし確実に歩んだ", "誠実に向き合い続けた", "深く、本質を問い続けた"]
+    }
+  },
+  { name: "紫", hex: "#7A40B0", textColor: "white",
+    keywords: {
+      いつ: ["夢と現実の境で", "直感が囁いた夜に", "神秘が訪れた瞬間に", "魂が揺れた夜明けに", "言葉にならない何かを感じた時に"],
+      どこで: ["霧に包まれた庭園で", "夢の中のような場所で", "見えない境界線の上で", "神秘が宿る空間で", "静寂と音楽が交わる場所で"],
+      誰が: ["見えないものが見える人が", "直感という羅針盤を持つ者が", "魂の声を聞ける人が", "神秘に怯えない者が", "美しさに敏感な人が"],
+      何を: ["直感という名の羅針盤を", "見えない何かを", "魂の声を", "神秘という名の答えを", "美しさの本質を"],
+      なぜ: ["理屈では説明できない何かを感じたから", "魂が教えてくれたから", "美しいと感じることが真実だから", "直感を裏切りたくなかったから", "見えないものが見えていたから"],
+      どうした: ["その声に従って歩いた", "論理より先に、感じた", "神秘の中に身を委ねた", "夢と現実を行き来した", "美しさを信じて進んだ"]
+    }
+  },
+  { name: "ピンク", hex: "#D04888", textColor: "white",
+    keywords: {
+      いつ: ["やわらかな春の午後に", "愛が満ちた瞬間に", "赦しが訪れた朝に", "自分を好きになれた日に", "優しさが溢れた夕暮れに"],
+      どこで: ["花びらが舞う道の途中で", "温かな光の中で", "愛が宿る場所で", "自分だけの安心な空間で", "やさしさが満ちる場所で"],
+      誰が: ["優しさを知る人が", "自分を愛することを学んだ人が", "赦すことを選んだ者が", "愛を惜しみなく与える人が", "心の柔らかさを持つ人が"],
+      何を: ["差し伸べた手を", "自分への愛を", "赦しという贈り物を", "柔らかな言葉を", "ありのままの自分を"],
+      なぜ: ["それが自然なことだったから", "愛することが強さだと知っていたから", "自分を大切にすることが先だと気づいたから", "赦しが自由をくれると知っていたから", "やさしさが世界を変えると信じていたから"],
+      どうした: ["ただ、そっと寄り添った", "自分を優しく抱きしめた", "赦して、前へ進んだ", "愛を、言葉にした", "ありのままで、いることを選んだ"]
+    }
+  }
+];
+
+const questions = ["いつ", "どこで", "誰が", "何を", "なぜ", "どうした"];
+let selections = {};
+let drawnCount = 0;
+
+function init() {
+  selections = {};
+  drawnCount = 0;
+
+  // プログレス
+  const prog = document.getElementById('progress');
+  prog.innerHTML = questions.map(() => '<div class="progress-dot"></div>').join('');
+
+  // カードグリッド
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = questions.map((q, i) => `
+    <div class="q-card" id="card-${i}" onclick="drawCard(${i}, '${q}')">
+      <div class="q-label" id="label-${i}" style="color:var(--muted)">${q}</div>
+      <div class="q-mark" id="mark-${i}">？</div>
+    </div>
+  `).join('');
+
+  document.getElementById('wordsList').innerHTML = '';
+  document.getElementById('generateBtn').classList.add('hidden');
+  document.getElementById('drawingSection').classList.remove('hidden');
+  document.getElementById('resultSection').classList.add('hidden');
+}
+
+function drawCard(index, question) {
+  const card = document.getElementById(`card-${index}`);
+  if (card.classList.contains('drawn')) return;
+
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const keyword = color.keywords[question][Math.floor(Math.random() * color.keywords[question].length)];
+
+  selections[question] = { color, keyword };
+  drawnCount++;
+
+  // カードを更新
+  card.classList.add('drawn');
+  card.style.background = `linear-gradient(145deg, ${color.hex}dd, ${color.hex}99)`;
+  card.style.borderColor = color.hex;
+  card.style.boxShadow = `0 8px 24px ${color.hex}44`;
+
+  document.getElementById(`label-${index}`).style.color = 'rgba(255,255,255,0.7)';
+  document.getElementById(`mark-${index}`).innerHTML = `
+    <div style="width:22px;height:22px;border-radius:50%;background:${color.hex};box-shadow:0 0 10px ${color.hex};margin-bottom:4px;"></div>
+    <div style="font-family:'Shippori Mincho',serif;font-size:12px;font-weight:600;color:white;letter-spacing:1px;">${color.name}</div>
+  `;
+
+  // プログレス更新
+  const dots = document.querySelectorAll('.progress-dot');
+  dots[drawnCount - 1].classList.add('done');
+  dots[drawnCount - 1].style.background = color.hex;
+
+  // 言葉リスト追加
+  const list = document.getElementById('wordsList');
+  const row = document.createElement('div');
+  row.className = 'word-row';
+  row.style.borderLeftColor = color.hex;
+  row.innerHTML = `
+    <span class="word-q">${question}</span>
+    <span class="word-text">${keyword}</span>
+  `;
+  list.appendChild(row);
+
+  // 全部引いたら生成ボタン表示
+  if (drawnCount === questions.length) {
+    document.getElementById('generateBtn').classList.remove('hidden');
+  }
+}
+
+function generateNarrative() {
+  const parts = questions.map(q => selections[q]?.keyword || '');
+  const story = `${parts[0]}、\n${parts[1]}、\n${parts[2]}は\n${parts[3]}手にした。\n\n${parts[4]}——\n${parts[5]}。`;
+
+  document.getElementById('storyText').textContent = story;
+
+  // パレット
+  const palette = document.getElementById('palette');
+  palette.innerHTML = questions.map(q =>
+    `<div class="palette-dot" style="background:${selections[q].color.hex};box-shadow:0 4px 14px ${selections[q].color.hex}55;"></div>`
+  ).join('');
+
+  document.getElementById('drawingSection').classList.add('hidden');
+  document.getElementById('resultSection').classList.remove('hidden');
+}
+
+function copyStory() {
+  const text = document.getElementById('storyText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = 'コピーしました ✓';
+    setTimeout(() => btn.textContent = '物語をコピーする', 2000);
+  });
+}
+
+function resetApp() {
+  init();
+}
+
+// 初期化
+init();
+</script>
+</body>
+</html>
