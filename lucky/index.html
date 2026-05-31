@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クッキーのラッキー</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&family=Kaisei+Tokumin:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c1a;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #f0ece4;
+    --muted: #8a8090;
+    --accent: #c9a96e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Zen Kurenaido', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 40px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* 背景の粒子 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(120,80,180,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(80,120,200,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .cookie-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c9a96e33, #a07840aa);
+    border: 1.5px solid #c9a96e44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 0 40px #c9a96e22;
+    /* 画像を後から使う場合はここにimgタグを入れる */
+  }
+
+  h1 {
+    font-family: 'Kaisei Tokumin', serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 6px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  /* カード */
+  .card-wrap {
+    perspective: 1200px;
+    margin-bottom: 36px;
+    cursor: pointer;
+  }
+
+  .card {
+    width: 220px;
+    height: 320px;
+    border-radius: 20px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-back {
+    background: linear-gradient(145deg, #1e1830, #2a2244);
+    border: 1.5px solid var(--border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back-pattern {
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-image: 
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 8px),
+      repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 8px);
+  }
+
+  .card-back-icon {
+    font-size: 32px;
+    opacity: 0.6;
+  }
+
+  .card-back-text {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  .card-front {
+    transform: rotateY(180deg);
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .card-front-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .color-orb {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .color-name {
+    font-family: 'Kaisei Tokumin', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 4px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  .color-keyword {
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  }
+
+  /* ナラティブ */
+  .narrative-box {
+    max-width: 340px;
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+  }
+
+  .narrative-box.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .narrative-cookie {
+    font-size: 18px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .narrative-text {
+    font-size: 14px;
+    line-height: 2.2;
+    letter-spacing: 0.8px;
+    color: #d4cec8;
+  }
+
+  /* ボタン */
+  .btn {
+    background: transparent;
+    border: 1px solid rgba(201,169,110,0.4);
+    border-radius: 40px;
+    color: var(--accent);
+    padding: 13px 40px;
+    font-family: 'Zen Kurenaido', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .btn:hover {
+    background: rgba(201,169,110,0.1);
+    border-color: var(--accent);
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  /* アニメーション */
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  header { animation: floatIn 0.8s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="cookie-icon">
+    <!-- クッキーの画像を使う場合：
+    <img src="../images/cookie.png" alt="クッキー" style="width:60px;height:60px;object-fit:contain;border-radius:50%;">
+    -->
+    🐿
+  </div>
+  <h1>クッキーのラッキー</h1>
+  <p class="subtitle">今日の色と言葉</p>
+</header>
+
+<div class="card-wrap" id="cardWrap" onclick="drawCard()">
+  <div class="card" id="card">
+    <div class="card-face card-back">
+      <div class="card-back-pattern">
+        <div class="card-back-icon">✦</div>
+        <div class="card-back-text">タップして引く</div>
+      </div>
+    </div>
+    <div class="card-face card-front">
+      <div class="card-front-inner" id="cardFrontInner">
+        <div class="color-orb" id="colorOrb"></div>
+        <div class="color-name" id="colorName"></div>
+        <div class="color-keyword" id="colorKeyword"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="narrative-box" id="narrativeBox">
+  <div class="narrative-cookie">🌰</div>
+  <div class="narrative-text" id="narrativeText"></div>
+</div>
+
+<button class="btn" onclick="drawCard()">もう一度引く</button>
+
+<script>
+const colors = [
+  {
+    name: "赤",
+    hex: "#E03030",
+    glow: "rgba(224,48,48,0.35)",
+    bg: "linear-gradient(145deg, #c02020dd, #e0303099)",
+    keywords: [
+      "燃える", "はじまり", "決意", "情熱", "生命力",
+      "前進", "勇気", "突破", "炎", "覚醒",
+      "熱狂", "誓い", "再生", "鼓動", "本気"
+    ],
+    narratives: [
+      "今日のあなたには、赤い炎が灯っている。誰かに見せなくていい。その熱は、あなた自身のためにある。",
+      "赤は、はじまりの色。今日、何かを決めてもいい日。ためらいは、もう必要ない。",
+      "情熱は、静かな場所から生まれる。今日のあなたは、その静けさの中に火種を持っている。"
+    ]
+  },
+  {
+    name: "橙",
+    hex: "#E8721A",
+    glow: "rgba(232,114,26,0.35)",
+    bg: "linear-gradient(145deg, #c85a10dd, #e8721a99)",
+    keywords: [
+      "協力", "交流", "つながり", "笑顔", "温もり",
+      "賑わい", "共感", "絆", "橋渡し", "歓迎",
+      "循環", "贈る", "受け取る", "広がり", "ぬくもり"
+    ],
+    narratives: [
+      "橙の今日は、誰かと笑い合う日。その笑顔が、あなたの一番の贈り物になる。",
+      "つながりの色、橙。今日、あなたの言葉が誰かの心に届く。それだけで、充分。",
+      "温かさは、押しつけなくていい。ただそこにいるだけで、橙のあなたは誰かの光になっている。"
+    ]
+  },
+  {
+    name: "黄",
+    hex: "#D4B800",
+    glow: "rgba(212,184,0,0.35)",
+    bg: "linear-gradient(145deg, #b49800dd, #d4b80099)",
+    keywords: [
+      "輝き", "知恵", "好奇心", "発見", "明るさ",
+      "学び", "アイデア", "閃き", "観察", "素直",
+      "成長", "喜び", "自由", "展開", "可能性"
+    ],
+    narratives: [
+      "黄色い光の今日。あなたの好奇心が、新しい扉を開ける鍵になる。",
+      "知恵は、難しいところから来ない。今日のあなたの「なぜ？」が、宝物になる。",
+      "輝くことを、恐れなくていい。あなたの明るさは、まわりをあたたかくしている。"
+    ]
+  },
+  {
+    name: "緑",
+    hex: "#3A9E50",
+    glow: "rgba(58,158,80,0.35)",
+    bg: "linear-gradient(145deg, #2a7e40dd, #3a9e5099)",
+    keywords: [
+      "調和", "癒し", "安らぎ", "自然", "成長",
+      "根を張る", "呼吸", "バランス", "回復", "穏やか",
+      "土台", "受け入れる", "育む", "静寂", "本来"
+    ],
+    narratives: [
+      "緑の今日は、深呼吸の日。急がなくていい。木が根を張るように、ゆっくりと。",
+      "調和は、外ではなく内にある。今日のあなたは、その中心に近づいている。",
+      "癒しとは、なにかをすることではない。ただ、あるがままでいること。緑はそれを教えてくれる。"
+    ]
+  },
+  {
+    name: "青",
+    hex: "#2060C8",
+    glow: "rgba(32,96,200,0.35)",
+    bg: "linear-gradient(145deg, #1040a8dd, #2060c899)",
+    keywords: [
+      "信頼", "誠実", "深める", "静かな力", "集中",
+      "内省", "本質", "言葉", "伝える", "責任",
+      "落ち着き", "洞察", "使命", "一貫性", "確かさ"
+    ],
+    narratives: [
+      "青の今日は、言葉を選ぶ日。あなたの一言が、誰かの人生を変えるかもしれない。",
+      "深く、静かに。今日のあなたは、海の底のような落ち着きを持っている。",
+      "信頼は、一日で作られない。今日のあなたの誠実さが、未来の礎になっている。"
+    ]
+  },
+  {
+    name: "紫",
+    hex: "#7A40B0",
+    glow: "rgba(122,64,176,0.35)",
+    bg: "linear-gradient(145deg, #5a20a0dd, #7a40b099)",
+    keywords: [
+      "直感", "霊感", "神秘", "夢", "創造",
+      "変容", "深さ", "洗練", "品格", "内なる声",
+      "統合", "超越", "感受性", "魂", "美意識"
+    ],
+    narratives: [
+      "紫の今日は、直感を信じる日。論理より先に、あなたの内側が知っている。",
+      "夢と現実の境界が、今日は少し薄い。見えないものを、感じてみて。",
+      "あなたの感受性は、才能だ。今日、それを隠さなくていい。"
+    ]
+  },
+  {
+    name: "ピンク",
+    hex: "#D04888",
+    glow: "rgba(208,72,136,0.35)",
+    bg: "linear-gradient(145deg, #b03070dd, #d0488899)",
+    keywords: [
+      "愛", "やさしさ", "自己愛", "赦す", "柔らかさ",
+      "受容", "慈しむ", "つつむ", "大切にする", "素直",
+      "感謝", "美しさ", "心地よさ", "解放", "ありのまま"
+    ],
+    narratives: [
+      "ピンクの今日は、自分を大切にする日。誰かのためより先に、あなた自身に愛を。",
+      "やさしさは、弱さじゃない。今日のあなたの柔らかさが、最大の強さになる。",
+      "赦すことは、相手のためじゃない。あなた自身が、自由になるために。"
+    ]
+  }
+];
+
+let currentColor = null;
+let isAnimating = false;
+
+function drawCard() {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const card = document.getElementById('card');
+  const narrativeBox = document.getElementById('narrativeBox');
+
+  // リセット
+  card.classList.remove('flipped');
+  narrativeBox.classList.remove('visible');
+
+  setTimeout(() => {
+    // ランダム選択
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const keyword = color.keywords[Math.floor(Math.random() * color.keywords.length)];
+    const narrative = color.narratives[Math.floor(Math.random() * color.narratives.length)];
+
+    currentColor = color;
+
+    // カード表面を更新
+    const inner = document.getElementById('cardFrontInner');
+    inner.style.background = color.bg;
+    inner.style.boxShadow = `0 20px 60px ${color.glow}, inset 0 1px 0 rgba(255,255,255,0.15)`;
+    inner.style.border = `1.5px solid ${color.hex}66`;
+
+    document.getElementById('colorOrb').style.cssText = `
+      background: ${color.hex};
+      box-shadow: 0 0 30px ${color.glow}, 0 0 60px ${color.glow.replace('0.35', '0.2')};
+      width: 72px; height: 72px; border-radius: 50%; margin-bottom: 8px; flex-shrink: 0;
+    `;
+    document.getElementById('colorName').textContent = color.name;
+    document.getElementById('colorKeyword').textContent = `「 ${keyword} 」`;
+
+    document.getElementById('narrativeText').textContent = narrative;
+
+    // フリップ
+    card.classList.add('flipped');
+
+    setTimeout(() => {
+      narrativeBox.classList.add('visible');
+      isAnimating = false;
+    }, 500);
+  }, 300);
+}
+</script>
+</body>
+</html>
